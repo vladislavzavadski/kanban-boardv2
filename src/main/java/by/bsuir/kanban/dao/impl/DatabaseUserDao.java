@@ -54,7 +54,7 @@ public class DatabaseUserDao implements UserDao {
         company.setId(resultSet.getInt(TableColumn.COMPANY_ID));
         company.setName(resultSet.getString(TableColumn.COMPANY_NAME));
 
-        user.setCompany(company);
+       // user.setCompany(company);
 
         return user;
     });

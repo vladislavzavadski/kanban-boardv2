@@ -10,18 +10,25 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by ulza1116 on 4/7/2017.
  */
 @Data
 @NoArgsConstructor
+@Entity
+@Table(name = "user")
 public class User implements UserDetails, Serializable {
 
     @Length(min = 5, max = 80, message = "Username length must be between 5 and 80 symbols")
+    @Id
+    @Column(length = 80)
     private String username;
 
     @JsonIgnore
@@ -38,21 +45,45 @@ public class User implements UserDetails, Serializable {
     private String email;
     private String picture;
     private boolean canCreateProject;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "company_id")
     private Company company;
 
+    @OneToMany(mappedBy = "lead", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<Project> ownProjects;
+
+    @ManyToMany
+    @JoinTable(name = "user_project", joinColumns = {@JoinColumn(name = "username")}, inverseJoinColumns = {@JoinColumn(name = "project_id")})
+    private Set<Project> projects;
+
     @JsonIgnore
+    @Transient
     private boolean accountNonExpired = true;
 
     @JsonIgnore
+    @Transient
     private boolean accountNonLocked = true;
 
     @JsonIgnore
+    @Transient
     private boolean credentialsNonExpired = true;
 
     @JsonIgnore
+    @Transient
     private boolean enabled = true;
     @JsonIgnore
+    @Transient
     private Collection<? extends GrantedAuthority> authorities;
+
+    @OneToMany(mappedBy = "taskCreator", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Task> createdTasks;
+
+    @OneToMany(mappedBy = "taskExecutor", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Task> executedTasks;
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "users")
+    private List<Role> roles;
 
     public User(User user) {
         this.username = user.username;

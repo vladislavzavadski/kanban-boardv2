@@ -57,7 +57,7 @@ public class DefaultProjectService implements ProjectService {
     public void createProject(Project project){
 
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        project.setCompany(user.getCompany());
+     //   project.setCompany(user.getCompany());
         int projectId = projectDao.createProject(project);
 
         userProjectDao.addUserOnProject(project.getLead().getUsername(), projectId);
