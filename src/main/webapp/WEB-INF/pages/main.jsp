@@ -61,15 +61,6 @@
                         <input autocomplete="false" class="form-control" type="text" ng-model="projname" id="projusername">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="col-2 col-form-label">Lead</label>
-                    <div class="col-10">
-                        <select title="Select project lead" ng-model="selected">
-                            <option>Select...</option>
-                            <option ng-repeat="lead in leads" value="{{lead.username}}">{{lead.firstName}} {{lead.lastName}}</option>
-                        </select>
-                    </div>
-                </div>
             </div>
             <div class="modal-footer">
                 <input type="submit" class="btn btn-block btn-primary" value="Create"/>

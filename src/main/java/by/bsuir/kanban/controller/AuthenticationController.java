@@ -2,7 +2,9 @@ package by.bsuir.kanban.controller;
 
 import by.bsuir.kanban.controller.exception.InvalidObjectException;
 import by.bsuir.kanban.domain.User;
+import by.bsuir.kanban.domain.to.UserDTO;
 import by.bsuir.kanban.service.UserService;
+import by.bsuir.kanban.service.converter.Converter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +21,13 @@ import javax.validation.Valid;
 @Controller
 public class AuthenticationController {
 
-    private UserService userService;
+    private final UserService userService;
+    private final Converter<UserDTO, User> userConverter;
 
     @Autowired
-    public AuthenticationController(UserService userService){
+    public AuthenticationController(UserService userService, Converter<UserDTO, User> userConverter){
         this.userService = userService;
+        this.userConverter = userConverter;
     }
 
     @RequestMapping(value = "/user", method = RequestMethod.POST)
@@ -50,8 +54,8 @@ public class AuthenticationController {
 
     @RequestMapping(value = "/currentuser", method = RequestMethod.GET)
     @ResponseBody
-    public User currentUser(){
-        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public UserDTO currentUser(){
+        return userConverter.convert((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
     }
 
     @RequestMapping(value = "/authenticated", method = RequestMethod.GET)

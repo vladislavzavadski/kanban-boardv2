@@ -23,8 +23,8 @@ import java.util.List;
  * Created by vladislav on 08.04.17.
  */
 
-@Repository
-public class DatabaseProjectDao implements ProjectDao {
+//@Repository
+public class DatabaseProjectDao {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
@@ -92,12 +92,12 @@ public class DatabaseProjectDao implements ProjectDao {
         return namedParameterJdbcTemplate.query(GET_USER_PROJECTS_QUERY, sqlParameterSource, projectRowMapper);
     }
 
-    @Override
+   // @Override
     public Project getProject(int projectId){
         return namedParameterJdbcTemplate.getJdbcOperations().queryForObject(GET_PROJECT_QUERY, new Object[]{projectId}, projectDetailsRowMapper);
     }
 
-    @Override
+    //@Override
     public int createProject(Project project){
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -118,14 +118,14 @@ public class DatabaseProjectDao implements ProjectDao {
         return keyHolder.getKey().intValue();
     }
 
-    @Override
+   // @Override
     public boolean isProjectOwner(String username, int projectId) {
         int count = namedParameterJdbcTemplate.getJdbcOperations().queryForObject(IS_PROJECT_OWNER_QUERY, new Object[]{projectId, username}, Integer.class);
 
         return 0 < count;
     }
 
-    @Override
+   // @Override
     public boolean isProjectOwnerByRole(String username, int roleId){
         int count = namedParameterJdbcTemplate.getJdbcOperations().queryForObject(IS_PROJECT_OWNER_BY_ROLE_QUERY, new Object[]{roleId, username}, Integer.class);
 

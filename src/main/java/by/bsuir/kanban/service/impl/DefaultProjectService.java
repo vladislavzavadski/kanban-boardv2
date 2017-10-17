@@ -5,17 +5,18 @@ import by.bsuir.kanban.domain.Project;
 import by.bsuir.kanban.domain.Status;
 import by.bsuir.kanban.domain.Task;
 import by.bsuir.kanban.domain.User;
+import by.bsuir.kanban.domain.to.ProjectDTO;
 import by.bsuir.kanban.service.ProjectService;
+import by.bsuir.kanban.service.converter.Converter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by vladislav on 08.04.17.
@@ -33,22 +34,26 @@ public class DefaultProjectService implements ProjectService {
 
     private final UserProjectDao userProjectDao;
 
+    private final Converter<ProjectDTO, Project> projectConverter;
+
     @Autowired
     public DefaultProjectService(ProjectDao projectDao, TaskDao taskDao, TaskStatusDao taskStatusDao,
-                                 UserDao userDao, UserProjectDao userProjectDao) {
+                                 UserDao userDao, UserProjectDao userProjectDao, Converter<ProjectDTO, Project> projectConverter) {
         this.projectDao = projectDao;
         this.taskDao = taskDao;
         this.taskStatusDao = taskStatusDao;
         this.userDao = userDao;
         this.userProjectDao = userProjectDao;
+        this.projectConverter = projectConverter;
     }
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public List<Project> getUserProjects(int limit, int startFrom) {
+    public List<ProjectDTO> getUserProjects(int limit, int startFrom) {
         User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        return projectDao.getUsersProjects(user.getUsername(), limit, startFrom);
+        return projectDao.getUsersProjects(user, new PageRequest(startFrom, limit)).stream().
+                map(projectConverter::convert).collect(Collectors.toList());
     }
 
     @Override
@@ -57,16 +62,16 @@ public class DefaultProjectService implements ProjectService {
     public void createProject(Project project){
 
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-     //   project.setCompany(user.getCompany());
-        int projectId = projectDao.createProject(project);
-
-        userProjectDao.addUserOnProject(project.getLead().getUsername(), projectId);
+        user = userDao.findOne(user.getUsername());
+        project.setLead(user);
+        user.getProjects().add(project);
+        userDao.save(user);
     }
 
     @Override
     @PreAuthorize("@databaseUserProjectDao.isUserAssignOnProject(principal.username, #projectId)")
     public Project getProject(int projectId){
-        Project project = projectDao.getProject(projectId);
+       // Project project = projectDao.getProject(projectId);
 
         List<Status> statuses = taskStatusDao.getAvailableProjectStatus(projectId);
 
@@ -77,9 +82,9 @@ public class DefaultProjectService implements ProjectService {
             tasks.addAll(tasksInStatus);
         }
 
-        project.setTasks(tasks);
-        project.setUsers(userDao.getUsersOnProject(projectId, TASK_START_FROM, TASK_LIMIT));
+//        project.setTasks(tasks);
+//        project.setUsers(userDao.getUsersOnProject(projectId, TASK_START_FROM, TASK_LIMIT));
 
-        return project;
+        return null;
     }
 }

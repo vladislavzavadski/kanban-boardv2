@@ -1,5 +1,8 @@
 package by.bsuir.kanban.service.config;
 
+import by.bsuir.kanban.domain.User;
+import by.bsuir.kanban.domain.to.UserDTO;
+import by.bsuir.kanban.service.converter.Converter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -34,13 +38,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
     private final JdbcTemplate jdbcTemplate;
     private final PasswordEncoder passwordEncoder;
+    private final Converter<UserDTO, User> userConverter;
 
 
     @Autowired
-    public SecurityConfiguration(UserDetailsService userDetailsService, JdbcTemplate jdbcTemplate, PasswordEncoder passwordEncoder) {
+    public SecurityConfiguration(UserDetailsService userDetailsService, JdbcTemplate jdbcTemplate, PasswordEncoder passwordEncoder, Converter<UserDTO, User> userConverter) {
         this.userDetailsService = userDetailsService;
         this.jdbcTemplate = jdbcTemplate;
         this.passwordEncoder = passwordEncoder;
+        this.userConverter = userConverter;
     }
 
     @Override
@@ -67,7 +73,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public AuthenticationSuccessHandler authenticationSuccessHandler(){
         return (httpServletRequest, httpServletResponse, authentication) -> {
             ObjectMapper objectMapper = objectMapper();
-            byte[]  serializedObject = objectMapper.writeValueAsBytes(authentication.getPrincipal());
+            byte[]  serializedObject = objectMapper.writeValueAsBytes(userConverter.convert((User)authentication.getPrincipal()));
 
             httpServletResponse.getOutputStream().write(serializedObject);
             httpServletResponse.setContentLength(serializedObject.length);

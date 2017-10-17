@@ -1,6 +1,6 @@
 package by.bsuir.kanban.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -20,42 +21,40 @@ import java.util.Set;
 /**
  * Created by ulza1116 on 4/7/2017.
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "user")
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class,
+        property = "username")
 public class User implements UserDetails, Serializable {
 
-    @Length(min = 5, max = 80, message = "Username length must be between 5 and 80 symbols")
     @Id
     @Column(length = 80)
     private String username;
 
     @JsonIgnore
-    @Length(min = 8, max = 20, message = "Password length must be between 5 and 20 symbols")
     private String password;
 
-    @Length(max = 80, message = "First name length must be max 80 symbols")
     private String firstName;
 
-    @Length(max = 80, message = "Last name length must be max 80 symbols")
     private String lastName;
 
-    @Email(message = "Invalid email")
     private String email;
     private String picture;
     private boolean canCreateProject;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;
 
-    @OneToMany(mappedBy = "lead", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "lead", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Project> ownProjects;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "user_project", joinColumns = {@JoinColumn(name = "username")}, inverseJoinColumns = {@JoinColumn(name = "project_id")})
-    private Set<Project> projects;
+    private List<Project> projects;
 
     @JsonIgnore
     @Transient

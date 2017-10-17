@@ -1,41 +1,51 @@
 package by.bsuir.kanban.domain;
 
 
-import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by vladislav on 08.04.17.
  */
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "project")
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class,
+        property = "id")
 public class Project implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     private String name;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_lead_id")
     private User lead;
     private String description;
     private String logo;
 
-    @Transient
+    @Formula("(select count(*) from user_project usp where usp.project_id=id)")
     private int usersNumber;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project")
     private List<Task> tasks;
 
-    @ManyToMany(mappedBy = "projects", fetch = FetchType.EAGER)
-    private List<User> users;
-    @Transient
+    @ManyToMany(mappedBy = "projects", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<User> users ;
+
+    @Formula("(select count(*) from task ta where ta.project_id = id)")
     private int totalTaskCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,4 +60,5 @@ public class Project implements Serializable {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project")
     private List<Status> statuses;
+
 }

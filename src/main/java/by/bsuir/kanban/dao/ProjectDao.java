@@ -1,20 +1,29 @@
 package by.bsuir.kanban.dao;
 
 import by.bsuir.kanban.domain.Project;
+import by.bsuir.kanban.domain.User;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 /**
  * Created by vladislav on 08.04.17.
  */
-public interface ProjectDao {
-    List<Project> getUsersProjects(String username, int limit, int startFrom);
+@Repository
+public interface ProjectDao extends JpaRepository<Project, Integer>{
 
-    Project getProject(int projectId);
+    @Query("select project from Project project where :user member project.users")
+    List<Project> getUsersProjects(@Param("user") User user, Pageable pageable);
 
-    int createProject(Project project);
-
-    boolean isProjectOwner(String username, int projectId);
-
-    boolean isProjectOwnerByRole(String username, int roleId);
+//    Project getProject(int projectId);
+//
+//    int createProject(Project project);
+//
+//    boolean isProjectOwner(String username, int projectId);
+//
+//    boolean isProjectOwnerByRole(String username, int roleId);
 }

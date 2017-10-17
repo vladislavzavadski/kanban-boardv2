@@ -54,7 +54,7 @@ public class DefaultUserService implements UserDetailsService, UserService {
     public void createUser(User user){
         String password = getRandomPassword();
         user.setPassword(passwordEncoder.encode(password));
-        userDao.createUser(user);
+        //userDao.createUser(user);
 
         Notification notification = new Notification();
         notification.setBody(user.getUsername() + " " + password);
@@ -82,27 +82,13 @@ public class DefaultUserService implements UserDetailsService, UserService {
             tempUser.setPassword(passwordEncoder.encode(tempUser.getPassword()));
         }
 
-        userDao.updateUser(tempUser);
+     //   userDao.updateUser(tempUser);
     }
 
     @Override
     @PreAuthorize("isAuthenticated()")
     public File getUserPicture(String username, String imageDirectoryFolder){
-        String pathToImage = userDao.getImagePath(username);
-
-        if(pathToImage == null){
-            return new File(imageDirectoryFolder + ImageConstant.DEFAULT_USER_IMAGE);
-        }
-
-        File file = new File(pathToImage);
-
-        if(file.exists()){
-            return file;
-        }
-
-        else {
-            return new File(imageDirectoryFolder + ImageConstant.DEFAULT_USER_IMAGE);
-        }
+        return null;
 
     }
 
@@ -110,7 +96,8 @@ public class DefaultUserService implements UserDetailsService, UserService {
     @PreAuthorize("isAuthenticated() and (principal.company.id eq #companyId)")
     public List<User> getUsersInCompany(int companyId){
 
-        return userDao.selectUsersByCompany(companyId);
+        //return userDao.selectUsersByCompany(companyId);
+        return null;
     }
 
     private String getRandomPassword(){
