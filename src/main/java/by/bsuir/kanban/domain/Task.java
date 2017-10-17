@@ -33,7 +33,7 @@ public class Task implements Serializable {
     @Enumerated(EnumType.STRING)
     private Priority priority;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "status_id")
     private Status taskStatus;
 

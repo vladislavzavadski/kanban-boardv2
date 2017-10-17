@@ -1,9 +1,7 @@
 package by.bsuir.kanban.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,8 +16,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "task_status")
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class,
-        property = "id")
+
 public class Status implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

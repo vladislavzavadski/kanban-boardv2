@@ -1,18 +1,14 @@
 package by.bsuir.kanban.domain;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,9 +18,8 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "project")
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class,
-        property = "id")
 public class Project implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;

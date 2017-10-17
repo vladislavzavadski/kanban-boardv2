@@ -3,6 +3,7 @@ package by.bsuir.kanban.service;
 import by.bsuir.kanban.domain.Status;
 import by.bsuir.kanban.domain.Tag;
 import by.bsuir.kanban.domain.Task;
+import by.bsuir.kanban.domain.to.StatusDTO;
 
 import java.util.List;
 import java.util.Set;
@@ -13,7 +14,7 @@ import java.util.Set;
 public interface TaskService {
     List<Task> searchTasks(Set<Tag> tags, String taskName, int projectId);
 
-    List<Status> getProjectTaskStatuses(int projectId);
+    List<StatusDTO> getProjectTaskStatuses(int projectId);
 
     void createTaskStatus(Status status);
 

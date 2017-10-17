@@ -19,11 +19,4 @@ public interface ProjectDao extends JpaRepository<Project, Integer>{
     @Query("select project from Project project where :user member project.users")
     List<Project> getUsersProjects(@Param("user") User user, Pageable pageable);
 
-//    Project getProject(int projectId);
-//
-//    int createProject(Project project);
-//
-//    boolean isProjectOwner(String username, int projectId);
-//
-//    boolean isProjectOwnerByRole(String username, int roleId);
 }

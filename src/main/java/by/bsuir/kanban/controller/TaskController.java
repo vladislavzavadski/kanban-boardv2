@@ -2,6 +2,7 @@ package by.bsuir.kanban.controller;
 
 import by.bsuir.kanban.domain.Status;
 import by.bsuir.kanban.domain.Task;
+import by.bsuir.kanban.domain.to.StatusDTO;
 import by.bsuir.kanban.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class TaskController {
     }
 
     @RequestMapping(value = "/status/{projectId}", method = RequestMethod.GET)
-    public List<Status> getTaskStatusesByProject(@PathVariable("projectId") int projectId){
+    public List<StatusDTO> getTaskStatusesByProject(@PathVariable("projectId") int projectId){
         return taskService.getProjectTaskStatuses(projectId);
     }
 

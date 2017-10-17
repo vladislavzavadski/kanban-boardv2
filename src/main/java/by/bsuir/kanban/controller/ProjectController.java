@@ -1,7 +1,8 @@
 package by.bsuir.kanban.controller;
 
 import by.bsuir.kanban.domain.Project;
-import by.bsuir.kanban.domain.to.ProjectDTO;
+import by.bsuir.kanban.domain.to.ComplexProjectDTO;
+import by.bsuir.kanban.domain.to.SimpleProjectDTO;
 import by.bsuir.kanban.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -23,13 +24,13 @@ public class ProjectController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/project/{id}")
-    public Project getProjectDetails(@PathVariable("id") int projectId){
+    public ComplexProjectDTO getProjectDetails(@PathVariable("id") int projectId){
         return projectService.getProject(projectId);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/projects")
-    public List<ProjectDTO> getUsersProjects(@RequestParam(value = "limit", defaultValue = "30") int limit,
-                                             @RequestParam(value = "start_from", defaultValue = "0") int startFrom){
+    public List<SimpleProjectDTO> getUsersProjects(@RequestParam(value = "limit", defaultValue = "30") int limit,
+                                                   @RequestParam(value = "start_from", defaultValue = "0") int startFrom){
         return projectService.getUserProjects(limit, startFrom);
     }
 
