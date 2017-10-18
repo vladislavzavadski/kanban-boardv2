@@ -81,13 +81,15 @@ public class DefaultTaskService implements TaskService{
 
     @Override
     @Transactional
-    @PreAuthorize("isAuthenticated() and @databaseUserProjectDao.isUserAssignOnProject(principal.username, #task.project.id)")
+    @PreAuthorize("isAuthenticated() and @userDao.isAssignedOnProjectByTaskId(principal.username, #task.id) ne 0")
     public void changeTaskStatus(Task task){
-       // taskDao.updateTaskStatus(task);
+
+        Task persistentTask = taskDao.findOne(task.getId());
+        persistentTask.setTaskStatus(task.getTaskStatus());
+        taskDao.save(persistentTask);
 
         User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-       // taskHistoryDao.logTaskChange(task, user);
+        logTaskChanges(task, user);
     }
 
     private void logTaskChanges(Task task, User user){

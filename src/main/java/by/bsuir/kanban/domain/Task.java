@@ -20,8 +20,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "task")
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class,
-        property = "id")
+
 public class Task implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
