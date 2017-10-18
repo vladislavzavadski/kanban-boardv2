@@ -57,11 +57,11 @@ public class DefaultProjectService implements ProjectService {
     @PreAuthorize("isAuthenticated() and principal.canCreateProject")
     public void createProject(Project project){
 
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        user = userDao.findOne(user.getUsername());
-        project.setLead(user);
-        user.getProjects().add(project);
-        userDao.save(user);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();//Дастаём пользователя и секьюрного контекста
+        user = userDao.findOne(user.getUsername());//Достаю пользователя из БД, чтобы привязать его к сессии хибернейта
+        project.setLead(user);//Устанавливаю руководителя проекта (1 к многим) у проекта 1 руководитель.
+        user.getProjects().add(project);//Добавляю проект к пользователю (многие ко многим: над 1-им проектам работет много пользователей 1 пользователь работает над многими проектами)
+        userDao.save(user);//Апдейчу пользователя
     }
 
     @Override
