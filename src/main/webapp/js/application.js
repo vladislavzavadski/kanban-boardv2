@@ -264,10 +264,13 @@ app.controller('CreateTaskController', ['$scope', '$http', '$q', '$rootScope', f
             taskStatus: {
                 id: $scope.selectedStatus
             },
-            priority: $scope.selectedPriority
+            priority: $scope.selectedPriority,
+            project:{
+                id : projectId
+            }
         };
 
-        $http.post('/task/'+projectId, data).then(function (response) {
+        $http.post('/task', data).then(function (response) {
             var getStatuses = $http.get('/status/'+projectId);
             var getTasks = $http.get('/project/'+projectId);
 

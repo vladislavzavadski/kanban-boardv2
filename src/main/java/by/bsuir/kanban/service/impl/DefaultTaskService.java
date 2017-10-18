@@ -1,10 +1,7 @@
 package by.bsuir.kanban.service.impl;
 
 import by.bsuir.kanban.dao.*;
-import by.bsuir.kanban.domain.Status;
-import by.bsuir.kanban.domain.Tag;
-import by.bsuir.kanban.domain.Task;
-import by.bsuir.kanban.domain.User;
+import by.bsuir.kanban.domain.*;
 import by.bsuir.kanban.domain.to.StatusDTO;
 import by.bsuir.kanban.service.TaskService;
 import by.bsuir.kanban.service.converter.Converter;
@@ -15,10 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -47,15 +41,16 @@ public class DefaultTaskService implements TaskService{
 
     @Override
     public List<Task> searchTasks(Set<Tag> tags, String taskName, int projectId) {
-        List<Task> tasks = taskDao.searchTasks(tags, taskName, projectId);
-
-        for(Task task: tasks){
-            task.setTags(taskDao.getTaskTags(task.getId()));
-        }
-
-        Collections.sort(tasks, new RelevantTaskComparator(tags));
-
-        return tasks;
+//        List<Task> tasks = taskDao.searchTasks(tags, taskName, projectId);
+//
+//        for(Task task: tasks){
+//            task.setTags(taskDao.getTaskTags(task.getId()));
+//        }
+//
+//        Collections.sort(tasks, new RelevantTaskComparator(tags));
+//
+//        return tasks;
+        return null;
     }
 
     @Override
@@ -76,24 +71,33 @@ public class DefaultTaskService implements TaskService{
 
     @Override
     @Transactional
-    @PreAuthorize("isAuthenticated() and @databaseProjectDao.isProjectOwner(principal.username, #projectId)")
-    public void createTask(Task task, int projectId){
+    @PreAuthorize("isAuthenticated() and @userDao.isProjectOwner(principal.username, #task.project.id) ne 0")
+    public void createTask(Task task){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
         task.setTaskCreator(user);
-        taskDao.insertTask(task, projectId);
-
-        taskHistoryDao.logTaskChange(task, user);
+        task = taskDao.save(task);
+        logTaskChanges(task, user);
     }
 
     @Override
     @Transactional
     @PreAuthorize("isAuthenticated() and @databaseUserProjectDao.isUserAssignOnProject(principal.username, #task.project.id)")
     public void changeTaskStatus(Task task){
-        taskDao.updateTaskStatus(task);
+       // taskDao.updateTaskStatus(task);
 
         User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        taskHistoryDao.logTaskChange(task, user);
+       // taskHistoryDao.logTaskChange(task, user);
+    }
+
+    private void logTaskChanges(Task task, User user){
+        TaskHistory taskHistory = new TaskHistory();
+
+        taskHistory.setEditor(user);
+        taskHistory.setTime(new Date());
+        taskHistory.setStatus(task.getTaskStatus());
+        taskHistory.setTask(task);
+
+        taskHistoryDao.save(taskHistory);
     }
 }

@@ -18,7 +18,7 @@ public interface TaskService {
 
     void createTaskStatus(Status status);
 
-    void createTask(Task task, int projectId);
+    void createTask(Task task);
 
     void changeTaskStatus(Task task);
 }
