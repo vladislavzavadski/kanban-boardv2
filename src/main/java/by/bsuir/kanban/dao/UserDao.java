@@ -14,7 +14,7 @@ public interface UserDao extends JpaRepository<User, String>{
 
     User getUserByUsername(String username);
 
-    @Query("select count (us) from User us join us.projects proj where us.username = :username and proj.id = :id")
+    @Query("select count (us) from User us join us.userProjects proj where us.username = :username and proj.project.id = :id")
     int isAssignedOnProject(@Param("username") String username, @Param("id")int projectId);
 
     @Query("select count (us) from User us join us.ownProjects proj where us.username = :username and proj.id = :id")

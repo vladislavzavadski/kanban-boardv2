@@ -1,8 +1,7 @@
 package by.bsuir.kanban.domain;
 
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+//$2a$10$u4gDAYyMDScY3IA1wEEqiu2Q0eB8mVJXJ5XNvN41beh/VhLOfab/S
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
@@ -37,9 +36,6 @@ public class Project implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project")
     private List<Task> tasks;
 
-    @ManyToMany(mappedBy = "projects", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<User> users ;
-
     @Formula("(select count(*) from task ta where ta.project_id = id)")
     private int totalTaskCount;
 
@@ -55,5 +51,8 @@ public class Project implements Serializable {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project")
     private List<Status> statuses;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserProject> userProjects;
 
 }

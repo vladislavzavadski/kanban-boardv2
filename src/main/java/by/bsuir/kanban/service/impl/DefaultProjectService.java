@@ -3,6 +3,7 @@ package by.bsuir.kanban.service.impl;
 import by.bsuir.kanban.dao.*;
 import by.bsuir.kanban.domain.Project;
 import by.bsuir.kanban.domain.User;
+import by.bsuir.kanban.domain.UserProject;
 import by.bsuir.kanban.domain.to.ComplexProjectDTO;
 import by.bsuir.kanban.domain.to.SimpleProjectDTO;
 import by.bsuir.kanban.service.ProjectService;
@@ -30,10 +31,11 @@ public class DefaultProjectService implements ProjectService {
     private final UserProjectDao userProjectDao;
     private final Converter<SimpleProjectDTO, Project> simpleProjectConverter;
     private final Converter<ComplexProjectDTO, Project> complexProjectConverter;
+    private final ProjectUserDao projectUserDao;
 
     @Autowired
     public DefaultProjectService(ProjectDao projectDao, TaskDao taskDao, TaskStatusDao taskStatusDao,
-                                 UserDao userDao, UserProjectDao userProjectDao, Converter<SimpleProjectDTO, Project> simpleProjectConverter, Converter<ComplexProjectDTO, Project> complexProjectConverter) {
+                                 UserDao userDao, UserProjectDao userProjectDao, Converter<SimpleProjectDTO, Project> simpleProjectConverter, Converter<ComplexProjectDTO, Project> complexProjectConverter, ProjectUserDao projectUserDao) {
         this.projectDao = projectDao;
         this.taskDao = taskDao;
         this.taskStatusDao = taskStatusDao;
@@ -41,6 +43,7 @@ public class DefaultProjectService implements ProjectService {
         this.userProjectDao = userProjectDao;
         this.simpleProjectConverter = simpleProjectConverter;
         this.complexProjectConverter = complexProjectConverter;
+        this.projectUserDao = projectUserDao;
     }
 
     @Override
@@ -59,9 +62,12 @@ public class DefaultProjectService implements ProjectService {
 
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();//Дастаём пользователя и секьюрного контекста
         user = userDao.findOne(user.getUsername());//Достаю пользователя из БД, чтобы привязать его к сессии хибернейта
-        project.setLead(user);//Устанавливаю руководителя проекта (1 к многим) у проекта 1 руководитель.
-        user.getProjects().add(project);//Добавляю проект к пользователю (многие ко многим: над 1-им проектам работет много пользователей 1 пользователь работает над многими проектами)
-        userDao.save(user);//Апдейчу пользователя
+        project.setLead(user);
+        project = projectDao.save(project);
+        UserProject userProject = new UserProject();
+        userProject.setProject(project);
+        userProject.setUser(user);
+        projectUserDao.save(userProject);
     }
 
     @Override

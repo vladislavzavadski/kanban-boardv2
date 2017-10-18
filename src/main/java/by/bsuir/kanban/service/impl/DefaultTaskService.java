@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,12 +61,16 @@ public class DefaultTaskService implements TaskService{
     @Override
     @PreAuthorize("@userDao.isAssignedOnProject(principal.username, #projectId) ne 0")
     public List<StatusDTO> getProjectTaskStatuses(int projectId){
-        return projectDao.findOne(projectId).getStatuses().stream().map(statusConverter::convert).collect(Collectors.toList());
+        return projectDao.findOne(projectId).getStatuses().stream().sorted(Comparator.comparingInt(Status::getOrder)).
+                map(statusConverter::convert).collect(Collectors.toList());
     }
 
     @Override
     @PreAuthorize("isAuthenticated() and @userDao.isProjectOwner(principal.username, #status.project.id) ne 0")
     public void createTaskStatus(Status status){
+        Integer maxOrder = taskStatusDao.getMaxOrderStatusNumber(status.getProject());
+        int currentOrder = maxOrder == null ? 0: maxOrder + 1;
+        status.setOrder(currentOrder);
         taskStatusDao.save(status);
     }
 

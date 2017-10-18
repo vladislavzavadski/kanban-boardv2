@@ -53,10 +53,6 @@ public class User implements UserDetails, Serializable {
     @OneToMany(mappedBy = "lead", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Project> ownProjects;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "user_project", joinColumns = {@JoinColumn(name = "username")}, inverseJoinColumns = {@JoinColumn(name = "project_id")})
-    private List<Project> projects;
-
     @JsonIgnore
     @Transient
     private boolean accountNonExpired = true;
@@ -84,6 +80,9 @@ public class User implements UserDetails, Serializable {
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "users")
     private List<Role> roles;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<UserProject> userProjects;
 
     public User(User user) {
         this.username = user.username;

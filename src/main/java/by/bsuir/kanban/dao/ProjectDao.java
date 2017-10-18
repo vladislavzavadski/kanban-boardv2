@@ -16,7 +16,7 @@ import java.util.List;
 @Repository
 public interface ProjectDao extends JpaRepository<Project, Integer>{
 
-    @Query("select project from Project project where :user member project.users")
+    @Query("select project from Project project join project.userProjects up join up.user us where us = :user")
     List<Project> getUsersProjects(@Param("user") User user, Pageable pageable);
 
 }
