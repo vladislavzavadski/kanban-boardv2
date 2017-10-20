@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -61,7 +62,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 failureHandler(authenticationFailureHandler()).successHandler(authenticationSuccessHandler()).and().logout().logoutUrl("/logout").
                 clearAuthentication(true).invalidateHttpSession(true).logoutSuccessHandler(logoutSuccessHandler()).and().
                 authorizeRequests().antMatchers("/currentuser").authenticated().and().rememberMe().rememberMeParameter("remember")
-        .tokenRepository(persistentTokenRepository()).tokenValiditySeconds(Integer.MAX_VALUE);
+        .tokenRepository(persistentTokenRepository()).tokenValiditySeconds(Integer.MAX_VALUE).and().exceptionHandling().
+                accessDeniedHandler(accessDeniedHandler());
     }
 
     @Bean
@@ -90,6 +92,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         jdbcTokenRepository.setJdbcTemplate(jdbcTemplate);
 
         return jdbcTokenRepository;
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler(){
+        return ((httpServletRequest, httpServletResponse, e) -> httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN));
     }
 
     @Bean

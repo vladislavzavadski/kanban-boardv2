@@ -1,6 +1,7 @@
 package by.bsuir.kanban.service;
 
 import by.bsuir.kanban.domain.User;
+import by.bsuir.kanban.domain.to.UserDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,12 +14,8 @@ import java.util.List;
 public interface UserService {
     void createUser(User user);
 
-    @Transactional
-    @PreAuthorize("isAuthenticated()")
     void updateUser(User user);
 
     File getUserPicture(String username, String imageDirectoryFolder);
-
-    @PreAuthorize("isAuthenticated() and (principal.company.id eq companyId)")
-    List<User> getUsersInCompany(int companyId);
+    List<UserDTO> getUsersInCompany(int companyId, int page, int limit);
 }

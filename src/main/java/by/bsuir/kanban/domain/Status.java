@@ -16,7 +16,6 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "task_status")
-
 public class Status implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

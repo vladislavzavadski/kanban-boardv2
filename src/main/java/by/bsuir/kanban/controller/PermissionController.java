@@ -2,15 +2,12 @@ package by.bsuir.kanban.controller;
 
 import by.bsuir.kanban.domain.Permission;
 import by.bsuir.kanban.service.PermissionService;
+import by.bsuir.kanban.service.exception.NotAssignedOnProjectException;
+import by.bsuir.kanban.service.exception.PermissionExistException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
-/**
- * Created by ulza1116 on 6/13/2017.
- */
 @RestController
 public class PermissionController {
 
@@ -21,10 +18,25 @@ public class PermissionController {
         this.permissionService = permissionService;
     }
 
-    @RequestMapping(value = "/permission", method = RequestMethod.POST)
-    public void createPermission(@RequestBody Permission permission){
-        permissionService.createPermission(permission);
+    @RequestMapping(method = RequestMethod.POST, value = "/permission")
+    public void createPermission(@RequestBody Permission permission) throws PermissionExistException, NotAssignedOnProjectException {
+        permissionService.addPermission(permission);
     }
 
+    @RequestMapping(method = RequestMethod.DELETE, value = "/permission/{permissionId}")
+    public void deletePermission(@PathVariable("permissionId") int permissionId){
+        permissionService.deletePermission(permissionId);
+    }
 
+    @ExceptionHandler(PermissionExistException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String permissionExceptionHandler(PermissionExistException ex){
+        return ex.getMessage();
+    }
+
+    @ExceptionHandler(NotAssignedOnProjectException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String notAssignedOnProjectExceptionHandler(NotAssignedOnProjectException ex){
+        return ex.getMessage();
+    }
 }

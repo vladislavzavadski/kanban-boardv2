@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name = "user_project")
@@ -34,6 +35,9 @@ public class UserProject {
     @JoinColumn(name = "username", insertable = false, updatable = false)
     private User user;
 
+    @OneToMany(mappedBy = "userProject", fetch = FetchType.LAZY)
+    private List<Permission> permissions;
+
     public void setProject(Project project){
         this.project = project;
         id.id = project.getId();
@@ -42,6 +46,10 @@ public class UserProject {
     public void setUser(User user){
         this.user = user;
         id.username = user.getUsername();
+    }
+
+    public void setPermissions(List<Permission> permissions){
+        this.permissions = permissions;
     }
 
 }

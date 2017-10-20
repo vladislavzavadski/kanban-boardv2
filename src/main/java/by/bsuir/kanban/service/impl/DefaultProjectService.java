@@ -28,19 +28,17 @@ public class DefaultProjectService implements ProjectService {
     private final TaskDao taskDao;
     private final TaskStatusDao taskStatusDao;
     private final UserDao userDao;
-    private final UserProjectDao userProjectDao;
     private final Converter<SimpleProjectDTO, Project> simpleProjectConverter;
     private final Converter<ComplexProjectDTO, Project> complexProjectConverter;
     private final ProjectUserDao projectUserDao;
 
     @Autowired
     public DefaultProjectService(ProjectDao projectDao, TaskDao taskDao, TaskStatusDao taskStatusDao,
-                                 UserDao userDao, UserProjectDao userProjectDao, Converter<SimpleProjectDTO, Project> simpleProjectConverter, Converter<ComplexProjectDTO, Project> complexProjectConverter, ProjectUserDao projectUserDao) {
+                                 UserDao userDao, Converter<SimpleProjectDTO, Project> simpleProjectConverter, Converter<ComplexProjectDTO, Project> complexProjectConverter, ProjectUserDao projectUserDao) {
         this.projectDao = projectDao;
         this.taskDao = taskDao;
         this.taskStatusDao = taskStatusDao;
         this.userDao = userDao;
-        this.userProjectDao = userProjectDao;
         this.simpleProjectConverter = simpleProjectConverter;
         this.complexProjectConverter = complexProjectConverter;
         this.projectUserDao = projectUserDao;
@@ -60,8 +58,8 @@ public class DefaultProjectService implements ProjectService {
     @PreAuthorize("isAuthenticated() and principal.canCreateProject")
     public void createProject(Project project){
 
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();//Дастаём пользователя и секьюрного контекста
-        user = userDao.findOne(user.getUsername());//Достаю пользователя из БД, чтобы привязать его к сессии хибернейта
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        user = userDao.findOne(user.getUsername());
         project.setLead(user);
         project = projectDao.save(project);
         UserProject userProject = new UserProject();
@@ -71,7 +69,7 @@ public class DefaultProjectService implements ProjectService {
     }
 
     @Override
-    @PreAuthorize("@userDao.isAssignedOnProject(principal.username, #projectId) ne 0")
+    @PreAuthorize("@userDao.isAssignedOnProject(principal.username, #projectId)")
     public ComplexProjectDTO getProject(int projectId){
 
         Project project = projectDao.findOne(projectId);

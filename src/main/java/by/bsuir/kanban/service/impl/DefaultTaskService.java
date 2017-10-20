@@ -5,7 +5,6 @@ import by.bsuir.kanban.domain.*;
 import by.bsuir.kanban.domain.to.StatusDTO;
 import by.bsuir.kanban.service.TaskService;
 import by.bsuir.kanban.service.converter.Converter;
-import by.bsuir.kanban.service.util.RelevantTaskComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,7 +30,8 @@ public class DefaultTaskService implements TaskService{
     private UserDao userDao;
 
     @Autowired
-    public DefaultTaskService(TaskDao taskDao, TaskStatusDao taskStatusDao, TaskHistoryDao taskHistoryDao, ProjectDao projectDao, Converter<StatusDTO, Status> statusConverter) {
+    public DefaultTaskService(TaskDao taskDao, TaskStatusDao taskStatusDao, TaskHistoryDao taskHistoryDao,
+                              ProjectDao projectDao, Converter<StatusDTO, Status> statusConverter) {
         this.taskDao = taskDao;
         this.taskStatusDao = taskStatusDao;
         this.taskHistoryDao = taskHistoryDao;
@@ -54,14 +54,14 @@ public class DefaultTaskService implements TaskService{
     }
 
     @Override
-    @PreAuthorize("@userDao.isAssignedOnProject(principal.username, #projectId) ne 0")
+    @PreAuthorize("@userDao.isAssignedOnProject(principal.username, #projectId)")
     public List<StatusDTO> getProjectTaskStatuses(int projectId){
         return projectDao.findOne(projectId).getStatuses().stream().sorted(Comparator.comparingInt(Status::getOrder)).
                 map(statusConverter::convert).collect(Collectors.toList());
     }
 
     @Override
-    @PreAuthorize("isAuthenticated() and @userDao.isProjectOwner(principal.username, #status.project.id) ne 0")
+    @PreAuthorize("isAuthenticated() and @userDao.isProjectOwner(principal.username, #status.project.id)")
     public void createTaskStatus(Status status){
         Integer maxOrder = taskStatusDao.getMaxOrderStatusNumber(status.getProject());
         int currentOrder = maxOrder == null ? 0: maxOrder + 1;
@@ -71,7 +71,9 @@ public class DefaultTaskService implements TaskService{
 
     @Override
     @Transactional
-    @PreAuthorize("isAuthenticated() and @userDao.isProjectOwner(principal.username, #task.project.id) ne 0")
+    @PreAuthorize("isAuthenticated() " +
+            "and (@defaultPermissionService.doesHavePermission(T(by.bsuir.kanban.domain.PermissionType).CREATE_TASK, principal, #task.project)" +
+            " or @userDao.isProjectOwner(principal.username, #task.project.id))")
     public void createTask(Task task){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         task.setTaskCreator(user);
@@ -81,7 +83,7 @@ public class DefaultTaskService implements TaskService{
 
     @Override
     @Transactional
-    @PreAuthorize("isAuthenticated() and @userDao.isAssignedOnProjectByTaskId(principal.username, #task.id) ne 0")
+    @PreAuthorize("isAuthenticated() and @userDao.isAssignedOnProjectByTaskId(principal.username, #task.id)")
     public void changeTaskStatus(Task task){
 
         Task persistentTask = taskDao.findOne(task.getId());

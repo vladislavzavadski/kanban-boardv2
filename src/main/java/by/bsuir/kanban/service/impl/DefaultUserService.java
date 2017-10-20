@@ -1,12 +1,15 @@
 package by.bsuir.kanban.service.impl;
 
-import by.bsuir.kanban.ImageConstant;
 import by.bsuir.kanban.dao.UserDao;
+import by.bsuir.kanban.domain.Company;
 import by.bsuir.kanban.domain.Notification;
 import by.bsuir.kanban.domain.User;
+import by.bsuir.kanban.domain.to.UserDTO;
 import by.bsuir.kanban.service.NotificationSender;
 import by.bsuir.kanban.service.UserService;
+import by.bsuir.kanban.service.converter.impl.UserConverter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +23,7 @@ import java.io.File;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by ulza1116 on 4/7/2017.
@@ -30,12 +34,14 @@ public class DefaultUserService implements UserDetailsService, UserService {
     private final UserDao userDao;
     private final PasswordEncoder passwordEncoder;
     private final NotificationSender notificationSender;
+    private final UserConverter userConverter;
 
     @Autowired
-    public DefaultUserService(UserDao userDao, PasswordEncoder passwordEncoder, NotificationSender notificationSender) {
+    public DefaultUserService(UserDao userDao, PasswordEncoder passwordEncoder, NotificationSender notificationSender, UserConverter userConverter) {
         this.notificationSender = notificationSender;
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
+        this.userConverter = userConverter;
     }
 
     @Override
@@ -93,11 +99,12 @@ public class DefaultUserService implements UserDetailsService, UserService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("isAuthenticated() and (principal.company.id eq #companyId)")
-    public List<User> getUsersInCompany(int companyId){
-
-        //return userDao.selectUsersByCompany(companyId);
-        return null;
+    public List<UserDTO> getUsersInCompany(int companyId, int page, int limit){
+        Company company = new Company();
+        company.setId(companyId);
+        return userDao.getUsersByCompany(company, new PageRequest(page, limit)).stream().map(userConverter :: convert).collect(Collectors.toList());
     }
 
     private String getRandomPassword(){

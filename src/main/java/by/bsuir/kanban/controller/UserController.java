@@ -1,12 +1,9 @@
 package by.bsuir.kanban.controller;
 
-import by.bsuir.kanban.domain.User;
+import by.bsuir.kanban.domain.to.UserDTO;
 import by.bsuir.kanban.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,8 +21,9 @@ public class UserController {
     }
 
     @RequestMapping(value = "user/company/{companyId}", method = RequestMethod.GET)
-    public List<User> getUsersInCompany(@PathVariable("companyId") int companyId){
-        return userService.getUsersInCompany(companyId);
+    public List<UserDTO> getUsersInCompany(@PathVariable("companyId") int companyId, @RequestParam(value = "page") int page,
+                                           @RequestParam(value = "limit", defaultValue = "10", required = false) int limit){
+        return userService.getUsersInCompany(companyId, page, limit);
     }
 
 }

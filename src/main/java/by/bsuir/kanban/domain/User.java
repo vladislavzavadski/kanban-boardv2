@@ -27,8 +27,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "user")
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class,
-        property = "username")
+
 public class User implements UserDetails, Serializable {
 
     @Id
@@ -46,7 +45,7 @@ public class User implements UserDetails, Serializable {
     private String picture;
     private boolean canCreateProject;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "company_id")
     private Company company;
 
