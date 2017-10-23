@@ -17,5 +17,7 @@ public interface ProjectService {
 
     void createProject(Project project);
 
+    boolean isProjectOwner(int projectId);
+
     ComplexProjectDTO getProject(int projectId);
 }

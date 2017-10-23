@@ -5,7 +5,10 @@ import by.bsuir.kanban.domain.*;
 import by.bsuir.kanban.domain.to.StatusDTO;
 import by.bsuir.kanban.service.TaskService;
 import by.bsuir.kanban.service.converter.Converter;
+import by.bsuir.kanban.service.exception.StatusNotFoundException;
+import by.bsuir.kanban.service.exception.TaskNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -92,6 +95,33 @@ public class DefaultTaskService implements TaskService{
 
         User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         logTaskChanges(task, user);
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("isAuthenticated() and @userDao.isProjectOwnerByStatusId(principal.username, #statusId)")
+    public void deleteTaskStatus(int statusId) throws StatusNotFoundException {
+        Status status = taskStatusDao.findOne(statusId);
+
+        if(status == null){
+            throw new StatusNotFoundException("Status with id = " + statusId + " was not found");
+        }
+
+        taskStatusDao.updateStatusOrderAfterDelete(status.getProject().getId(), status.getOrder());
+        taskStatusDao.delete(statusId);
+    }
+
+    @Override
+    @PreAuthorize("isAuthenticated() and (@userDao.isProjectOwnerByTaskId(principal.username, #taskId) " +
+            "or @taskDao.isTaskCreator(principal.username, #taskId))")
+    public void deleteTask(int taskId) throws TaskNotFoundException {
+
+        try {
+            taskDao.delete(taskId);
+        }
+        catch (EmptyResultDataAccessException ex){
+            throw new TaskNotFoundException(ex);
+        }
     }
 
     private void logTaskChanges(Task task, User user){

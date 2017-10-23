@@ -69,6 +69,13 @@ public class DefaultProjectService implements ProjectService {
     }
 
     @Override
+    @PreAuthorize("isAuthenticated()")
+    public boolean isProjectOwner(int projectId){
+        User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userDao.isProjectOwner(user.getUsername(), projectId);
+    }
+
+    @Override
     @PreAuthorize("@userDao.isAssignedOnProject(principal.username, #projectId)")
     public ComplexProjectDTO getProject(int projectId){
 

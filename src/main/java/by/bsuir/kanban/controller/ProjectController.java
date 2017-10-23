@@ -34,6 +34,11 @@ public class ProjectController {
         return projectService.getUserProjects(limit, startFrom);
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/owner")
+    public boolean isProjectOwner(@RequestParam("project_id") int projectId){
+        return projectService.isProjectOwner( projectId);
+    }
+
     @RequestMapping(method = RequestMethod.POST, value = "/project", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void createProject(@RequestBody Project project){
         projectService.createProject(project);

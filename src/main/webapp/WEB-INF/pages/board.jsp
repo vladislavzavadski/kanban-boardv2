@@ -26,6 +26,7 @@
                 <div>
                     <div class="col-md-2 status" ng-controller = 'Basic'  ng-repeat="taskStatus in taskStatuses">
                         <span style="font-size: 30px; font-family: 'Love Ya Like A Sister', cursive;">{{taskStatus.name}}</span>
+                        <button data-toggle="modal" data-name = "{{taskStatus.name}}" data-id="{{taskStatus.id}}" data-target="#delete-status" ng-show="isProjectOwner()" type="button" class="close delete-stat"><span aria-hidden="true">&times;</span></button>
                         <div class="row containerVertical">
                             <div class="col-md-12 task" ng-repeat="task in tasks[$index]" style="background-color: {{color(task.priority)}};">
                                <span style="font-family: 'Love Ya Like A Sister', cursive; font-size: 20px;">{{task.name}}</span>
@@ -42,7 +43,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-2 status" ng-controller="NewStatusController">
+                <div class="col-md-2 status" ng-controller="NewStatusController" ng-show="isProjectOwner">
                     <a style="font-family: 'Love Ya Like A Sister', cursive; font-size: 20px;" class="btn btn-block" data-toggle="collapse" data-target="#new-status">New status</a>
                     <div class="collapse" id="new-status">
                         <form ng-submit="newstatus(projectId)">
@@ -96,6 +97,21 @@
                             <input type="submit" class="btn btn-success" value="Create task"/>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="delete-status" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content"  ng-controller="DeleteStatusController">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="deleting-message"></h4>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <input id="delete-status-submit" type="submit" ng-click = "deleteStatus(deleteStatusId)" class="btn btn-danger" value="Delete status"/>
+                    </div>
                 </div>
             </div>
         </div>

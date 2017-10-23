@@ -56,8 +56,6 @@ app.controller('Basic', ['$element', 'dragularService', '$scope', '$rootScope', 
             var getStatuses = $http.get('/status/'+projectId);
             var getTasks = $http.get('/project/'+projectId);
 
-            //$('#create-task').modal('toggle');
-
             $q.all([getStatuses, getTasks]).then(function (response) {
 
                 $rootScope.taskStatuses = response[0].data;
@@ -68,10 +66,33 @@ app.controller('Basic', ['$element', 'dragularService', '$scope', '$rootScope', 
                 console.log(sortedTasks);
                 $rootScope.tasks = [];
                 $rootScope.tasks.push.apply($rootScope.tasks, sortedTasks);
-                // $rootScope.projectId = $routeParams.projectId;
             });
         });
         
+    };
+
+    $scope.isProjectOwner = function () {
+        return $rootScope.isProjectOwner;
+    };
+
+
+
+    $rootScope.refreshBoard = function () {
+        var getStatuses = $http.get('/status/'+$rootScope.projectId);
+        var getTasks = $http.get('/project/'+$rootScope.projectId);
+
+        $q.all([getStatuses, getTasks]).then(function (response) {
+
+            $rootScope.taskStatuses = response[0].data;
+
+            var ids = getStatIds(response[0].data);
+            var sortedTasks = getSortedTasks(ids, response[1].data.tasks);
+
+            console.log(sortedTasks);
+            $rootScope.tasks = [];
+            $rootScope.tasks.push.apply($rootScope.tasks, sortedTasks);
+            // $rootScope.projectId = $routeParams.projectId;
+        });
     }
 }]);
 
@@ -123,8 +144,9 @@ app.controller('BoardController', ['$q', '$http', '$routeParams', '$rootScope', 
 
     var getStatuses = $http.get('/status/'+$routeParams.projectId);
     var getTasks = $http.get('/project/'+$routeParams.projectId);
+    var isProjectOwner = $http.get('/owner?project_id=' + $routeParams.projectId);
 
-    $q.all([getStatuses, getTasks]).then(function (response) {
+    $q.all([getStatuses, getTasks,isProjectOwner]).then(function (response) {
 
         $rootScope.taskStatuses = response[0].data;
 
@@ -135,6 +157,7 @@ app.controller('BoardController', ['$q', '$http', '$routeParams', '$rootScope', 
         $rootScope.tasks = [];
         $rootScope.tasks.push.apply($rootScope.tasks, sortedTasks);
         $rootScope.projectId = $routeParams.projectId;
+        $rootScope.isProjectOwner = response[2].data;
     });
 
 
@@ -209,6 +232,20 @@ app.controller('UsersInCompanyController', ['$http', '$scope', function ($http, 
     }
 }]);
 
+app.controller('DeleteStatusController', ['$http', '$scope', '$rootScope', function ($http, $scope, $rootScope) {
+
+    $scope.deleteStatus = function (statusId) {
+        $http({
+            method : 'DELETE',
+            url : '/status/' + statusId
+        }).then(function (response) {
+            $('#delete-status').modal('toggle');
+            $rootScope.refreshBoard();
+        });
+    };
+
+}]);
+
 app.controller('CreateProjectController', ['$scope', '$http', function ($scope, $http) {
 
     $scope.newproject = function () {
@@ -271,24 +308,17 @@ app.controller('CreateTaskController', ['$scope', '$http', '$q', '$rootScope', f
         };
 
         $http.post('/task', data).then(function (response) {
-            var getStatuses = $http.get('/status/'+projectId);
-            var getTasks = $http.get('/project/'+projectId);
-
             $('#create-task').modal('toggle');
-
-            $q.all([getStatuses, getTasks]).then(function (response) {
-
-                $rootScope.taskStatuses = response[0].data;
-
-                var ids = getStatIds(response[0].data);
-                var sortedTasks = getSortedTasks(ids, response[1].data.tasks);
-
-                console.log(sortedTasks);
-                $rootScope.tasks = [];
-                $rootScope.tasks.push.apply($rootScope.tasks, sortedTasks);
-               // $rootScope.projectId = $routeParams.projectId;
-            });
+            $rootScope.refreshBoard();
         });
     }
+
+    $(document).on("click", ".delete-stat", function () {
+        var statusName = $(this).data('name');
+        var statusId = $(this).data('id');
+        $("#deleting-message").html("You sure delete status " + statusName + "?");
+        $rootScope.deleteStatusId = statusId;
+        console.log(statusName);
+    });
 
 }]);
