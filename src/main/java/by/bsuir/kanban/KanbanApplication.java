@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 @EnableAsync
-@EnableTransactionManagement
+@EnableTransactionManagement//TODO Отправлять отдельно запросы на получения задач по статусам
 public class KanbanApplication {
 
 	public static void main(String[] args) {

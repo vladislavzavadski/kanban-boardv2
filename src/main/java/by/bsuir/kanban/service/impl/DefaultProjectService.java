@@ -76,7 +76,7 @@ public class DefaultProjectService implements ProjectService {
     }
 
     @Override
-    @PreAuthorize("@userDao.isAssignedOnProject(principal.username, #projectId)")
+    @PreAuthorize("@userDao.isAssignedOnProject(principal.username, #projectId)")//TODO
     public ComplexProjectDTO getProject(int projectId){
 
         Project project = projectDao.findOne(projectId);

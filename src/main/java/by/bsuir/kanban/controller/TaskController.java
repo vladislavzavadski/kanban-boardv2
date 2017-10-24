@@ -2,7 +2,9 @@ package by.bsuir.kanban.controller;
 
 import by.bsuir.kanban.domain.Status;
 import by.bsuir.kanban.domain.Task;
+import by.bsuir.kanban.domain.User;
 import by.bsuir.kanban.domain.to.StatusDTO;
+import by.bsuir.kanban.domain.to.TaskDTO;
 import by.bsuir.kanban.service.TaskService;
 import by.bsuir.kanban.service.exception.StatusNotFoundException;
 import by.bsuir.kanban.service.exception.TaskNotFoundException;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -54,6 +57,23 @@ public class TaskController {
     @RequestMapping(value = "/task/{taskId}", method = RequestMethod.DELETE)
     public void deleteTask(@PathVariable("taskId") int taskId) throws TaskNotFoundException {
         taskService.deleteTask(taskId);
+    }
+
+    @RequestMapping(value = "/task/assign/to/{taskId}", method = RequestMethod.PUT)
+    public void assignTask(@RequestBody User user, @PathVariable("taskId") int taskId) throws TaskNotFoundException {
+        taskService.assignTask(user, taskId);
+    }
+
+    @RequestMapping(value = "/task/assign/{taskId}", method = RequestMethod.PUT)
+    public void assignTask(@PathVariable("taskId") int taskId) throws TaskNotFoundException {
+        taskService.assignTask(taskId);
+    }
+
+    @RequestMapping(value = "/task/{projectId}", method = RequestMethod.GET)
+    public List<TaskDTO> getTasks(@PathVariable("projectId") int projectId, @RequestParam("statusId") int statusId,
+                                  @RequestParam("page") int page,
+                                  @RequestParam(value = "limit", required = false, defaultValue = "20") int limit){
+        return taskService.getProjectTasks(projectId, statusId, page, limit);
     }
 
     @ExceptionHandler(StatusNotFoundException.class)

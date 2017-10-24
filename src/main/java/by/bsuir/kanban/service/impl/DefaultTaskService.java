@@ -3,12 +3,14 @@ package by.bsuir.kanban.service.impl;
 import by.bsuir.kanban.dao.*;
 import by.bsuir.kanban.domain.*;
 import by.bsuir.kanban.domain.to.StatusDTO;
+import by.bsuir.kanban.domain.to.TaskDTO;
 import by.bsuir.kanban.service.TaskService;
 import by.bsuir.kanban.service.converter.Converter;
 import by.bsuir.kanban.service.exception.StatusNotFoundException;
 import by.bsuir.kanban.service.exception.TaskNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ public class DefaultTaskService implements TaskService{
     private final TaskHistoryDao taskHistoryDao;
     private final ProjectDao projectDao;
     private final Converter<StatusDTO, Status> statusConverter;
+    private final
 
     @Autowired
     private UserDao userDao;
@@ -80,6 +83,7 @@ public class DefaultTaskService implements TaskService{
     public void createTask(Task task){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         task.setTaskCreator(user);
+        task.setCreateDate(new Date());
         task = taskDao.save(task);
         logTaskChanges(task, user);
     }
@@ -122,6 +126,39 @@ public class DefaultTaskService implements TaskService{
         catch (EmptyResultDataAccessException ex){
             throw new TaskNotFoundException(ex);
         }
+    }
+
+    @Override//TODO: security
+    public void assignTask(int taskId) throws TaskNotFoundException {
+        Task task = taskDao.findOne(taskId);
+
+        if(task == null){
+            throw new TaskNotFoundException("Task with id = "+taskId+" was not found");
+        }
+
+        User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        task.setTaskExecutor(user);
+        taskDao.save(task);
+    }
+
+    @Override//TODO security
+    public void assignTask(User user, int taskId) throws TaskNotFoundException {
+        Task task = taskDao.findOne(taskId);
+
+        if(task == null){
+            throw new TaskNotFoundException("Task with id = "+taskId+" was not found");
+        }
+
+        task.setTaskExecutor(user);
+        taskDao.save(task);
+    }
+
+    @Override
+    public List<TaskDTO> getProjectTasks(int projectId, int statusId, int page, int limit){
+        List<Task> tasks = taskDao.getTaskByTaskStatusAndProject(new Status(statusId), new Project(projectId),
+                new PageRequest(page, limit));
+
+        return tasks.stream().map();
     }
 
     private void logTaskChanges(Task task, User user){

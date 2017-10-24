@@ -1,7 +1,5 @@
 package by.bsuir.kanban.domain;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,4 +28,10 @@ public class Status implements Serializable {
 
     @OneToMany(mappedBy = "taskStatus", fetch = FetchType.LAZY)
     private List<Task> tasks;
+
+    public Status(int id){
+        this.id = id;
+    }
+
+    public Status(){}
 }

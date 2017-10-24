@@ -17,7 +17,7 @@ app.controller('Basic', ['$element', 'dragularService', '$scope', '$rootScope', 
 
     $scope.$on('dragulardrop', function (e, e1) {
 
-//        console.log(e, e1, c1);
+        console.log(e, e1);
     });
 
     $scope.color = function (priority) {
@@ -93,7 +93,12 @@ app.controller('Basic', ['$element', 'dragularService', '$scope', '$rootScope', 
             $rootScope.tasks.push.apply($rootScope.tasks, sortedTasks);
             // $rootScope.projectId = $routeParams.projectId;
         });
+    };
+
+    $scope.showTaskDetails = function (taskId) {
+        $('#taskDetails').modal('toggle');
     }
+
 }]);
 
 app.controller('LoginController', ['$scope', '$http', '$location', '$rootScope', function ($scope, $http, $location, $rootScope) {

@@ -2,6 +2,7 @@ package by.bsuir.kanban.domain;
 
 
 //$2a$10$u4gDAYyMDScY3IA1wEEqiu2Q0eB8mVJXJ5XNvN41beh/VhLOfab/S
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
@@ -54,5 +55,11 @@ public class Project implements Serializable {
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UserProject> userProjects;
+
+    public Project(int id){
+        this.id = id;
+    }
+
+    public Project(){}
 
 }
