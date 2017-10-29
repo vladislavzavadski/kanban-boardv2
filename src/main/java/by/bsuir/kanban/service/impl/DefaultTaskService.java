@@ -30,19 +30,20 @@ public class DefaultTaskService implements TaskService{
     private final TaskHistoryDao taskHistoryDao;
     private final ProjectDao projectDao;
     private final Converter<StatusDTO, Status> statusConverter;
-    private final
+    private final Converter<TaskDTO, Task> taskConverter;
 
     @Autowired
     private UserDao userDao;
 
     @Autowired
     public DefaultTaskService(TaskDao taskDao, TaskStatusDao taskStatusDao, TaskHistoryDao taskHistoryDao,
-                              ProjectDao projectDao, Converter<StatusDTO, Status> statusConverter) {
+                              ProjectDao projectDao, Converter<StatusDTO, Status> statusConverter, Converter<TaskDTO, Task> taskConverter) {
         this.taskDao = taskDao;
         this.taskStatusDao = taskStatusDao;
         this.taskHistoryDao = taskHistoryDao;
         this.projectDao = projectDao;
         this.statusConverter = statusConverter;
+        this.taskConverter = taskConverter;
     }
 
     @Override
@@ -158,7 +159,7 @@ public class DefaultTaskService implements TaskService{
         List<Task> tasks = taskDao.getTaskByTaskStatusAndProject(new Status(statusId), new Project(projectId),
                 new PageRequest(page, limit));
 
-        return tasks.stream().map();
+        return tasks.stream().map(taskConverter::convert).collect(Collectors.toList());
     }
 
     private void logTaskChanges(Task task, User user){
