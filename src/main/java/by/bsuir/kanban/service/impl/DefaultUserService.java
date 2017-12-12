@@ -60,7 +60,6 @@ public class DefaultUserService implements UserDetailsService, UserService {
     public void createUser(User user){
         String password = getRandomPassword();
         user.setPassword(passwordEncoder.encode(password));
-        //userDao.createUser(user);
 
         Notification notification = new Notification();
         notification.setBody(user.getUsername() + " " + password);
@@ -88,7 +87,6 @@ public class DefaultUserService implements UserDetailsService, UserService {
             tempUser.setPassword(passwordEncoder.encode(tempUser.getPassword()));
         }
 
-     //   userDao.updateUser(tempUser);
     }
 
     @Override
