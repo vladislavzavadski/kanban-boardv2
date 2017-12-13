@@ -65,8 +65,8 @@ public class User implements UserDetails, Serializable {
     private boolean credentialsNonExpired = true;
 
     @JsonIgnore
-    @Transient
-    private boolean enabled = true;
+    private boolean enabled;
+
     @JsonIgnore
     @Transient
     private Collection<? extends GrantedAuthority> authorities;
@@ -82,6 +82,9 @@ public class User implements UserDetails, Serializable {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<UserProject> userProjects;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private RegistrationToken registrationToken;
 
     public User(User user) {
         this.username = user.username;
