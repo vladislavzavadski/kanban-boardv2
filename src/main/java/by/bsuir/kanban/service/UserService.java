@@ -3,6 +3,7 @@ package by.bsuir.kanban.service;
 import by.bsuir.kanban.domain.User;
 import by.bsuir.kanban.domain.to.UserDTO;
 import by.bsuir.kanban.service.exception.EmailAlreadyUsedException;
+import by.bsuir.kanban.service.exception.InvalidTokenException;
 import by.bsuir.kanban.service.exception.LoginAlreadyUsedException;
 
 import java.io.File;
@@ -18,4 +19,6 @@ public interface UserService {
 
     File getUserPicture(String username, String imageDirectoryFolder);
     List<UserDTO> getUsersInCompany(int companyId, int page, int limit);
+
+    void activateUserAccount(String token) throws InvalidTokenException;
 }

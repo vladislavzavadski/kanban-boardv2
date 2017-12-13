@@ -10,6 +10,7 @@ import by.bsuir.kanban.event.UserRegistrationEvent;
 import by.bsuir.kanban.service.UserService;
 import by.bsuir.kanban.service.converter.Converter;
 import by.bsuir.kanban.service.exception.EmailAlreadyUsedException;
+import by.bsuir.kanban.service.exception.InvalidTokenException;
 import by.bsuir.kanban.service.exception.LoginAlreadyUsedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -27,6 +28,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.File;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -94,6 +96,16 @@ public class DefaultUserService implements UserDetailsService, UserService {
 
     @Override
     @Transactional
+    public void activateUserAccount(String token) throws InvalidTokenException {
+
+
+        RegistrationToken registrationToken = registrationTokenDao.findOne(token);
+        validateToken(registrationToken);
+        registrationToken.getUser().setEnabled(true);
+    }
+
+    @Override
+    @Transactional
     @PreAuthorize("isAuthenticated() and (principal.company.id eq #companyId)")
     public List<UserDTO> getUsersInCompany(int companyId, int page, int limit){
         Company company = new Company();
@@ -135,7 +147,18 @@ public class DefaultUserService implements UserDetailsService, UserService {
         registrationToken.setExpirationDate(calendar.getTime());
 
         registrationTokenDao.save(registrationToken);
-
         return token;
+    }
+
+    private void validateToken(RegistrationToken registrationToken) throws InvalidTokenException {
+        if(registrationToken == null){
+            throw new InvalidTokenException("Entered token is invalid");
+        }
+
+        Date currentDate = Calendar.getInstance().getTime();
+
+        if(currentDate.after(registrationToken.getExpirationDate())){
+            throw new InvalidTokenException("Entered token is invalid");
+        }
     }
 }

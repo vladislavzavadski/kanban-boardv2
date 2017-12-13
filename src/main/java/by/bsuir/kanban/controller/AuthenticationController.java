@@ -6,6 +6,7 @@ import by.bsuir.kanban.domain.to.UserDTO;
 import by.bsuir.kanban.service.UserService;
 import by.bsuir.kanban.service.converter.Converter;
 import by.bsuir.kanban.service.exception.EmailAlreadyUsedException;
+import by.bsuir.kanban.service.exception.InvalidTokenException;
 import by.bsuir.kanban.service.exception.LoginAlreadyUsedException;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ public class AuthenticationController {
     @RequestMapping(value = "/user", method = RequestMethod.POST)
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerUser(@RequestBody @Valid UserDTO user, Errors errors, HttpServletRequest request) throws EmailAlreadyUsedException, LoginAlreadyUsedException {
+    public void registerUser(@RequestBody @Valid UserDTO user, Errors errors) throws EmailAlreadyUsedException, LoginAlreadyUsedException {
 
         if(errors.hasErrors()){
             throw new InvalidObjectException(errors);
@@ -67,6 +68,16 @@ public class AuthenticationController {
         boolean isAuthenticated = SecurityContextHolder.getContext().getAuthentication() != null;
 
         return new ResponseEntity<>(isAuthenticated, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/user/{token}", method = RequestMethod.GET)
+    public void confirmUserAccount(@PathVariable("token") String token) throws InvalidTokenException {
+        userService.activateUserAccount(token);
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public String invalidUserTokenExceptionHandler(InvalidTokenException ex){
+        return "Invalid token";
     }
 
     @ExceptionHandler(InvalidObjectException.class)
