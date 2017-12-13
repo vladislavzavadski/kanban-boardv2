@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ -z "$1"] || [ -z "$2"] || [ -z "$3"]
+    then
+        echo "Invalid script parameters"
+        echo "./run <database_username> <database_password> <database_url>"
+        exit
+fi
+
+mvn clean package
+cd target
+java -DDB_USERNAME=$1 -DDB_PASSWORD=$2 -DDB_URL=$3 -jar kanban-0.0.1-SNAPSHOT.jar
