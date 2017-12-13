@@ -33,7 +33,7 @@ public class AuthenticationController {
     @RequestMapping(value = "/user", method = RequestMethod.POST)
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerUser(@RequestBody @Valid User user, Errors errors) {
+    public void registerUser(@RequestBody @Valid UserDTO user, Errors errors) {
 
         if(errors.hasErrors()){
             throw new InvalidObjectException(errors);

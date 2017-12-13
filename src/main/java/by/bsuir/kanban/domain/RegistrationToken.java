@@ -14,7 +14,7 @@ public class RegistrationToken {
     @Id
     private String token;
 
-    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "username")
     private User user;
 

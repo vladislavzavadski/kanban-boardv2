@@ -41,6 +41,7 @@ public class User implements UserDetails, Serializable {
 
     private String lastName;
 
+    @Column(unique = true)
     private String email;
     private String picture;
     private boolean canCreateProject;
