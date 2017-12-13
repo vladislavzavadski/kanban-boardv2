@@ -7,10 +7,8 @@ import by.bsuir.kanban.domain.RegistrationToken;
 import by.bsuir.kanban.domain.User;
 import by.bsuir.kanban.domain.to.UserDTO;
 import by.bsuir.kanban.event.UserRegistrationEvent;
-import by.bsuir.kanban.service.NotificationSender;
 import by.bsuir.kanban.service.UserService;
 import by.bsuir.kanban.service.converter.Converter;
-import by.bsuir.kanban.service.converter.impl.UserConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +20,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.File;
 import java.util.Calendar;
@@ -39,7 +39,6 @@ public class DefaultUserService implements UserDetailsService, UserService {
     private final UserDao userDao;
     private final RegistrationTokenDao registrationTokenDao;
     private final PasswordEncoder passwordEncoder;
-    private final NotificationSender notificationSender;
     private final Converter<UserDTO, User> userConverter;
     private final ApplicationEventPublisher applicationEventPublisher;
 
@@ -68,7 +67,11 @@ public class DefaultUserService implements UserDetailsService, UserService {
 
         registrationTokenDao.save(registrationToken);
 
-        applicationEventPublisher.publishEvent(new UserRegistrationEvent(userDTO, token));
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+        String applicationUrl = servletRequestAttributes.getRequest().getRequestURL().toString();
+
+        applicationEventPublisher.publishEvent(new UserRegistrationEvent(userDTO, token, applicationUrl));
     }
 
     @Override

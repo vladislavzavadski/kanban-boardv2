@@ -5,6 +5,7 @@ import by.bsuir.kanban.domain.User;
 import by.bsuir.kanban.domain.to.UserDTO;
 import by.bsuir.kanban.service.UserService;
 import by.bsuir.kanban.service.converter.Converter;
+import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,7 @@ public class AuthenticationController {
     @RequestMapping(value = "/user", method = RequestMethod.POST)
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerUser(@RequestBody @Valid UserDTO user, Errors errors) {
+    public void registerUser(@RequestBody @Valid UserDTO user, Errors errors, HttpServletRequest request) {
 
         if(errors.hasErrors()){
             throw new InvalidObjectException(errors);
@@ -63,7 +64,7 @@ public class AuthenticationController {
     public ResponseEntity<Boolean> isAuthenticated(){
         boolean isAuthenticated = SecurityContextHolder.getContext().getAuthentication() != null;
 
-        return new ResponseEntity<Boolean>(isAuthenticated, HttpStatus.OK);
+        return new ResponseEntity<>(isAuthenticated, HttpStatus.OK);
     }
 
     @ExceptionHandler(InvalidObjectException.class)

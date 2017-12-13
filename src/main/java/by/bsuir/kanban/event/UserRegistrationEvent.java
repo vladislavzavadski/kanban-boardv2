@@ -5,15 +5,18 @@ import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
 @Getter
+
 public class UserRegistrationEvent extends ApplicationEvent {
 
     private UserDTO userDTO;
     private String token;
+    private String applicationUrl;
 
-    public UserRegistrationEvent(UserDTO userDTO, String token) {
+    public UserRegistrationEvent(UserDTO userDTO, String token, String applicationUrl) {
         super(userDTO);
         this.userDTO = userDTO;
         this.token = token;
+        this.applicationUrl = applicationUrl;
     }
 
 }
