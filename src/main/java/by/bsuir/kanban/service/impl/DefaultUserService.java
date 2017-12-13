@@ -9,6 +9,8 @@ import by.bsuir.kanban.domain.to.UserDTO;
 import by.bsuir.kanban.event.UserRegistrationEvent;
 import by.bsuir.kanban.service.UserService;
 import by.bsuir.kanban.service.converter.Converter;
+import by.bsuir.kanban.service.exception.EmailAlreadyUsedException;
+import by.bsuir.kanban.service.exception.LoginAlreadyUsedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
@@ -55,22 +57,12 @@ public class DefaultUserService implements UserDetailsService, UserService {
 
     @Override
     @Transactional
-    public void createUser(UserDTO userDTO){
-        RegistrationToken registrationToken = new RegistrationToken();
-        registrationToken.setUser(toUser(userDTO));
-        String token = UUID.randomUUID().toString();
-        registrationToken.setToken(token);
+    public void createUser(UserDTO userDTO) throws LoginAlreadyUsedException, EmailAlreadyUsedException {
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 2);
-        registrationToken.setExpirationDate(calendar.getTime());
-
-        registrationTokenDao.save(registrationToken);
-
+        validateUserDto(userDTO);
+        String token = createRegistrationToken(userDTO);
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-
         String applicationUrl = servletRequestAttributes.getRequest().getRequestURL().toString();
-
         applicationEventPublisher.publishEvent(new UserRegistrationEvent(userDTO, token, applicationUrl));
     }
 
@@ -119,5 +111,31 @@ public class DefaultUserService implements UserDetailsService, UserService {
         user.setEmail(userDTO.getEmail());
 
         return user;
+    }
+
+    private void validateUserDto(UserDTO userDTO) throws LoginAlreadyUsedException, EmailAlreadyUsedException {
+
+        if(userDao.exists(userDTO.getUsername())){
+            throw new LoginAlreadyUsedException("Login " + userDTO.getUsername() + " already used");
+        }
+
+        if(userDao.isEmailUsed(userDTO.getEmail())){
+            throw new EmailAlreadyUsedException("Email " + userDTO.getEmail() + " already used");
+        }
+    }
+
+    private String createRegistrationToken(UserDTO userDTO){
+        RegistrationToken registrationToken = new RegistrationToken();
+        registrationToken.setUser(toUser(userDTO));
+        String token = UUID.randomUUID().toString();
+        registrationToken.setToken(token);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.HOUR, 2);
+        registrationToken.setExpirationDate(calendar.getTime());
+
+        registrationTokenDao.save(registrationToken);
+
+        return token;
     }
 }

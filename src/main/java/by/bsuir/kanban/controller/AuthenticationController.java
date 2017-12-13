@@ -5,6 +5,8 @@ import by.bsuir.kanban.domain.User;
 import by.bsuir.kanban.domain.to.UserDTO;
 import by.bsuir.kanban.service.UserService;
 import by.bsuir.kanban.service.converter.Converter;
+import by.bsuir.kanban.service.exception.EmailAlreadyUsedException;
+import by.bsuir.kanban.service.exception.LoginAlreadyUsedException;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,7 +36,7 @@ public class AuthenticationController {
     @RequestMapping(value = "/user", method = RequestMethod.POST)
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerUser(@RequestBody @Valid UserDTO user, Errors errors, HttpServletRequest request) {
+    public void registerUser(@RequestBody @Valid UserDTO user, Errors errors, HttpServletRequest request) throws EmailAlreadyUsedException, LoginAlreadyUsedException {
 
         if(errors.hasErrors()){
             throw new InvalidObjectException(errors);
@@ -68,9 +70,20 @@ public class AuthenticationController {
     }
 
     @ExceptionHandler(InvalidObjectException.class)
-    public ResponseEntity<Object> invalidObjectExceptionHandler(InvalidObjectException ex){
-        String message = ex.getErrors().getFieldError().getDefaultMessage();
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String invalidObjectExceptionHandler(InvalidObjectException ex){
+        return ex.getErrors().getFieldError().getDefaultMessage();
+    }
 
-        return new ResponseEntity<>(message, HttpStatus.OK);
+    @ExceptionHandler(LoginAlreadyUsedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String loginAlreadyExistExceptionHandler(LoginAlreadyUsedException ex){
+        return "Login already used";
+    }
+
+    @ExceptionHandler(EmailAlreadyUsedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String emailAlreadyExistExceptionHandler(EmailAlreadyUsedException ex){
+        return "Email already used";
     }
 }

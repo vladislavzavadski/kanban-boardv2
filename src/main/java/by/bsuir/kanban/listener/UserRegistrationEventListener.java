@@ -14,11 +14,10 @@ public class UserRegistrationEventListener implements ApplicationListener<UserRe
 
     private final NotificationSender notificationSender;
 
-    @Async
     @Override
     public void onApplicationEvent(UserRegistrationEvent userRegistrationEvent) {
         Notification notification = new Notification("vladislav.zavadski@gmail.com",
-                userRegistrationEvent.getUserDTO().getEmail(), "Registration", "Body " + userRegistrationEvent.getApplicationUrl()+"/" + userRegistrationEvent.getToken());
+                userRegistrationEvent.getUserDTO().getEmail(), "Registration11", "Body " + userRegistrationEvent.getApplicationUrl()+"/" + userRegistrationEvent.getToken());
 
         notificationSender.sendNotification(notification);
     }

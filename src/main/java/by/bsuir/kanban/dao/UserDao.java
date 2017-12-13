@@ -41,4 +41,7 @@ public interface UserDao extends JpaRepository<User, String>{
 
     @Query("select (count (us) > 0) from User us join us.userProjects up join up.project pr where pr.id = (select proj.id from Project proj join proj.tasks tasks where tasks.id = :taskId) and us.username = :username")
     boolean isProjectOwnerByTaskId(@Param("username") String username, @Param("taskId") int taskId);
+
+    @Query("select (count (us) > 0) from User us where us.email = :email")
+    boolean isEmailUsed(@Param("email") String email);
 }
