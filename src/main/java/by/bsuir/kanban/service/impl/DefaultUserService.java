@@ -97,11 +97,10 @@ public class DefaultUserService implements UserDetailsService, UserService {
     @Override
     @Transactional
     public void activateUserAccount(String token) throws InvalidTokenException {
-
-
         RegistrationToken registrationToken = registrationTokenDao.findOne(token);
         validateToken(registrationToken);
         registrationToken.getUser().setEnabled(true);
+        // TODO: 12/14/17 Authenticate user
     }
 
     @Override
