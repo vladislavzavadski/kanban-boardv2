@@ -16,7 +16,13 @@ public class UserInviteToken {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "inviter_username")
+    private User inviter;
+
     private Date expirationTime;
     private boolean inviteAccepted;
+    private String email;
 
 }

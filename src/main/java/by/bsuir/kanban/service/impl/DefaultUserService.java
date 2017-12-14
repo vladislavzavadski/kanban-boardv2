@@ -6,6 +6,7 @@ import by.bsuir.kanban.dao.UserInviteTokenDao;
 import by.bsuir.kanban.domain.*;
 import by.bsuir.kanban.domain.to.UserDTO;
 import by.bsuir.kanban.domain.to.UserInvitationDTO;
+import by.bsuir.kanban.event.UserInvitationEvent;
 import by.bsuir.kanban.event.UserRegistrationEvent;
 import by.bsuir.kanban.service.UserService;
 import by.bsuir.kanban.service.converter.Converter;
@@ -118,7 +119,12 @@ public class DefaultUserService implements UserDetailsService, UserService {
     @PreAuthorize("isAuthenticated() and @userDao.isProjectOwner(principal.username, #userInvitationDTO.projectDTO.id)")
     public void inviteUser(UserInvitationDTO userInvitationDTO){
         String token = createInviteToken(userInvitationDTO);
-
+        User inviter = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        String applicationUrl = servletRequestAttributes.getRequest().getRequestURL().toString();
+        UserInvitationEvent userInvitationEvent = new UserInvitationEvent(userInvitationDTO, token, applicationUrl,
+                userConverter.convert(inviter));
+        applicationEventPublisher.publishEvent(userInvitationEvent);
     }
 
     private User toUser(UserDTO userDTO){
@@ -164,6 +170,7 @@ public class DefaultUserService implements UserDetailsService, UserService {
 
         String token = UUID.randomUUID().toString();
         userInviteToken.setToken(token);
+        userInviteToken.setEmail(userInvitationDTO.getEmail());
 
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.HOUR, 2);

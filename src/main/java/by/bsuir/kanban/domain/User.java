@@ -52,6 +52,9 @@ public class User implements UserDetails, Serializable {
     @OneToMany(mappedBy = "lead", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Project> ownProjects;
 
+    @OneToMany(mappedBy = "inviter", fetch = FetchType.LAZY)
+    private Set<UserInviteToken> userInviteTokens;
+
     @JsonIgnore
     @Transient
     private boolean accountNonExpired = true;
