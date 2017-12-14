@@ -3,12 +3,12 @@ package by.bsuir.kanban.controller;
 import by.bsuir.kanban.controller.exception.InvalidObjectException;
 import by.bsuir.kanban.domain.User;
 import by.bsuir.kanban.domain.to.UserDTO;
+import by.bsuir.kanban.domain.to.UserInvitationDTO;
 import by.bsuir.kanban.service.UserService;
 import by.bsuir.kanban.service.converter.Converter;
 import by.bsuir.kanban.service.exception.EmailAlreadyUsedException;
 import by.bsuir.kanban.service.exception.InvalidTokenException;
 import by.bsuir.kanban.service.exception.LoginAlreadyUsedException;
-import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +54,11 @@ public class AuthenticationController {
         }
 
         userService.updateUser(user);
+    }
+
+    @RequestMapping(value = "/user/invitation", method = RequestMethod.POST)
+    public void inviteUser(@RequestBody UserInvitationDTO userInvintation){
+
     }
 
     @RequestMapping(value = "/currentuser", method = RequestMethod.GET)

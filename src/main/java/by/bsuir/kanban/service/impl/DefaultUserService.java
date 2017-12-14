@@ -2,10 +2,10 @@ package by.bsuir.kanban.service.impl;
 
 import by.bsuir.kanban.dao.RegistrationTokenDao;
 import by.bsuir.kanban.dao.UserDao;
-import by.bsuir.kanban.domain.Company;
-import by.bsuir.kanban.domain.RegistrationToken;
-import by.bsuir.kanban.domain.User;
+import by.bsuir.kanban.dao.UserInviteTokenDao;
+import by.bsuir.kanban.domain.*;
 import by.bsuir.kanban.domain.to.UserDTO;
+import by.bsuir.kanban.domain.to.UserInvitationDTO;
 import by.bsuir.kanban.event.UserRegistrationEvent;
 import by.bsuir.kanban.service.UserService;
 import by.bsuir.kanban.service.converter.Converter;
@@ -45,6 +45,7 @@ public class DefaultUserService implements UserDetailsService, UserService {
     private final PasswordEncoder passwordEncoder;
     private final Converter<UserDTO, User> userConverter;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final UserInviteTokenDao userInviteTokenDao;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -112,6 +113,14 @@ public class DefaultUserService implements UserDetailsService, UserService {
         return userDao.getUsersByCompany(company, new PageRequest(page, limit)).stream().map(userConverter :: convert).collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional
+    @PreAuthorize("isAuthenticated() and @userDao.isProjectOwner(principal.username, #userInvitationDTO.projectDTO.id)")
+    public void inviteUser(UserInvitationDTO userInvitationDTO){
+        String token = createInviteToken(userInvitationDTO);
+
+    }
+
     private User toUser(UserDTO userDTO){
         User user = new User();
 
@@ -146,6 +155,22 @@ public class DefaultUserService implements UserDetailsService, UserService {
         registrationToken.setExpirationDate(calendar.getTime());
 
         registrationTokenDao.save(registrationToken);
+        return token;
+    }
+
+    private String createInviteToken(UserInvitationDTO userInvitationDTO){
+        UserInviteToken userInviteToken = new UserInviteToken();
+        userInviteToken.setProject(new Project(userInvitationDTO.getProjectDTO().getId()));
+
+        String token = UUID.randomUUID().toString();
+        userInviteToken.setToken(token);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.HOUR, 2);
+        userInviteToken.setExpirationTime(calendar.getTime());
+
+        userInviteTokenDao.save(userInviteToken);
+
         return token;
     }
 

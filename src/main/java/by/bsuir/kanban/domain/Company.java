@@ -30,6 +30,4 @@ public class Company {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "company", cascade = CascadeType.ALL)
     private List<Project> projects;
-
-    }
-
+}

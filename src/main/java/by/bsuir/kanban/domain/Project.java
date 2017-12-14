@@ -56,6 +56,9 @@ public class Project implements Serializable {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UserProject> userProjects;
 
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+    private List<UserInviteToken> userInviteTokens;
+
     public Project(int id){
         this.id = id;
     }
